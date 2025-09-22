@@ -4,17 +4,41 @@ Command: npx gltfjsx@6.5.2 .\model.gltf --transform
 Files: .\model.gltf [5.59KB] > C:\Users\FTMA\Desktop\xanaxProject\XANAXSITE\src\assets\model-transformed.glb [95.17KB] (-1603%)
 */
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useGLTF } from '@react-three/drei';
 
 export function Model(props) {
-  const { nodes, materials } = useGLTF('./renderrr.glb')
+  const { nodes, materials } = useGLTF('./rendfinal-transformed.glb');
+
+  // Clone material for object_0 so we can make it metallic
+  const metallicMat = useMemo(() => {
+    const mat = materials['object_0_Baked.008'].clone();
+    mat.metalness = 0.1;    // fully metallic
+    mat.roughness = 0.4;    // smooth & shiny
+    return mat;
+  }, [materials]);
+
   return (
     <group {...props} dispose={null}>
-      <mesh geometry={nodes.object_0_Baked.geometry} material={materials.object_0_Baked} position={[0.037, -0.494, -0.522]} rotation={[0, 0, Math.PI / 2]} scale={[0.875, 1, 1]} />
-      <mesh geometry={nodes.object_1_Baked.geometry} material={materials.object_1_Baked} position={[0.033, -0.493, -0.513]} rotation={[0, 0, Math.PI / 2]} scale={[0.875, 1, 1]} />
+      {/* Metallic version of object_0 */}
+      <mesh
+        geometry={nodes.object_0_Baked.geometry}
+        material={metallicMat}
+        position={[0.037, -0.494, -0.522]}
+        rotation={[0, 0, Math.PI / 2]}
+        scale={[0.875, 1, 1]}
+      />
+
+      {/* Stock object_1, untouched */}
+      <mesh
+        geometry={nodes.object_1_Baked.geometry}
+        material={materials['object_1_Baked.008']}
+        position={[0.033, -0.493, -0.513]}
+        rotation={[0, 0, Math.PI / 2]}
+        scale={[0.875, 1, 1]}
+      />
     </group>
-  )
+  );
 }
 
-useGLTF.preload('./renderrr.glb')
+useGLTF.preload('./rendfinal-transformed.glb');
